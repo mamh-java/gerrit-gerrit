@@ -18,9 +18,9 @@ import com.google.gerrit.extensions.config.FactoryModule;
 import com.google.gerrit.extensions.events.LifecycleListener;
 import com.google.inject.Scopes;
 import com.google.inject.internal.UniqueAnnotations;
-import com.googlesource.gerrit.plugins.transsion.commands.HookArgs;
-import com.googlesource.gerrit.plugins.transsion.commands.HookExecutor;
-import com.googlesource.gerrit.plugins.transsion.commands.HookQueue;
+import com.googlesource.gerrit.plugins.transsion.hooks.HookArgs;
+import com.googlesource.gerrit.plugins.transsion.hooks.HookExecutor;
+import com.googlesource.gerrit.plugins.transsion.hooks.HookQueue;
 
 
 class Module extends FactoryModule {

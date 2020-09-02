@@ -1,4 +1,4 @@
-package com.googlesource.gerrit.plugins.transsion.commands;
+package com.googlesource.gerrit.plugins.transsion.hooks;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gerrit.extensions.events.LifecycleListener;
