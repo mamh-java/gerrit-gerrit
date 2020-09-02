@@ -9,4 +9,14 @@ gerrit_plugin(
         "Gerrit-SshModule: com.googlesource.gerrit.plugins.transsion.SshModule",
     ],
     resources = glob(["src/main/resources/**/*"]),
+    deps = [
+        ":replication-neverlink",
+        "//plugins/hooks",
+    ],
+)
+
+java_library(
+    name = "replication-neverlink",
+    neverlink = 1,
+    exports = ["//plugins/replication"],
 )
