@@ -15,23 +15,12 @@
 package com.googlesource.gerrit.plugins.transsion;
 
 import com.google.gerrit.extensions.config.FactoryModule;
-import com.google.gerrit.extensions.events.LifecycleListener;
-import com.google.inject.Scopes;
-import com.google.inject.internal.UniqueAnnotations;
-import com.googlesource.gerrit.plugins.transsion.hooks.HookArgs;
-import com.googlesource.gerrit.plugins.transsion.hooks.HookExecutor;
-import com.googlesource.gerrit.plugins.transsion.hooks.HookQueue;
 
 
 class Module extends FactoryModule {
   @Override
   protected void configure() {
-    bind(HookQueue.class).in(Scopes.SINGLETON);
-    bind(LifecycleListener.class).annotatedWith(UniqueAnnotations.create()).to(HookQueue.class);
-    bind(HookExecutor.class).in(Scopes.SINGLETON);
-    bind(LifecycleListener.class).annotatedWith(UniqueAnnotations.create()).to(HookExecutor.class);
 
-    factory(HookArgs.Factory.class);
   }
 
 }
