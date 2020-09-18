@@ -30,23 +30,15 @@ import com.google.gerrit.sshd.CommandMetaData;
 import com.google.gerrit.sshd.SshCommand;
 import com.google.gwtorm.server.OrmException;
 import com.google.inject.Inject;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
-import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.kohsuke.args4j.Option;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.eclipse.jgit.lib.RefDatabase.ALL;
 
 @RequiresCapability(GlobalCapability.ADMINISTRATE_SERVER)
 @CommandMetaData(name = "compare-branch", description = "compare two branch revision tag by git log comamnd")
@@ -72,11 +64,13 @@ public final class CompareBranchCommand extends SshCommand {
       usage = "project for compare")
   private ProjectControl projectControl;
 
+  @Option(name = "--alias", usage = "use native git comamnd or git alias command")
+  private boolean alias;
 
-  @Option(name = "--new",metaVar = "rev", required = true, usage = "the new revision")
+  @Option(name = "--new",metaVar = "revision", required = true, usage = "the new revision")
   private String newRevision;
 
-  @Option(name = "--old", metaVar = "rev", required = true, usage = "the old revision")
+  @Option(name = "--old", metaVar = "revision", required = true, usage = "the old revision")
   private String oldRevision;
 
 
@@ -95,30 +89,42 @@ public final class CompareBranchCommand extends SshCommand {
          ManualRequestContext ctx = requestContext.openAs(currentUser.getAccountId())) {
       try {
         String directory = repo.getDirectory().getAbsolutePath(); // the git directory
-        List<String> argv = new ArrayList<>();
-        argv.add("git");
-        argv.add("--no-pager");
-        argv.add("-C");
-        argv.add(directory);
-        argv.add("log");
-        argv.add("--left-right");
-        argv.add("--cherry-pick");
-        argv.add("--date=short");
-        argv.add("--pretty='%m || %h ||  %<(120,trunc)%s (%<(10,trunc)%an) (%cd)'");
-        argv.add(newRevision + "..." + oldRevision);
+        List<String> logargv = new ArrayList<>();
+        logargv.add("git");
+        logargv.add("--no-pager");
+        logargv.add("-C");
+        logargv.add(directory);
+        logargv.add("log");
+        logargv.add("--left-right");
+        logargv.add("--cherry-pick");
+        logargv.add("--date=short");
+        logargv.add("--pretty='%m  %h ||  %<(120,trunc)%s ||  (%<(10,trunc)%an) ||  (%cd)'");
+        logargv.add(newRevision + "..." + oldRevision);
 
+        List<String> cmpargv = new ArrayList<>();
+        cmpargv.add("git");
+        cmpargv.add("--no-pager");
+        cmpargv.add("-C");
+        cmpargv.add(directory);
+        cmpargv.add("cmp");
+        cmpargv.add(newRevision);
+        cmpargv.add(oldRevision);
+
+        List<String> argv;
+        if(alias){
+          argv = cmpargv;
+        }else {
+          argv = logargv;
+        }
         ProcessBuilder pb = new ProcessBuilder(argv);
         pb.redirectErrorStream(true);
-
-        Map<String, String> env = pb.environment();
-        env.put("GERRIT_SITE", sitePaths.site_path.toAbsolutePath().toString());
 
         Process ps = pb.start();
 
         ps.getOutputStream().close();
         String out = new String(ByteStreams.toByteArray(ps.getInputStream()), UTF_8);
         ps.waitFor();
-        stdout.println(argv);
+
         stdout.println(out);
         //String cmd = "git --no-pager -C " + directory + " log --left-right --cherry-pick --date=short --pretty='%m || %h ||  %<(120,trunc)%s (%<(10,trunc)%an) (%cd)' '" + oldRevision + "'...'" + newRevision + "' ";
         ps.destroy();
