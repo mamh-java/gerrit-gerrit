@@ -10,13 +10,8 @@ gerrit_plugin(
     ],
     resources = glob(["src/main/resources/**/*"]),
     deps = [
-        ":replication-neverlink",
         "//plugins/hooks",
     ],
 )
 
-java_library(
-    name = "replication-neverlink",
-    neverlink = 1,
-    exports = ["//plugins/replication"],
-)
+
