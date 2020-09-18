@@ -14,16 +14,17 @@
 
 package com.googlesource.gerrit.plugins.transsion.commands;
 
+import com.google.gerrit.common.data.GlobalCapability;
 import com.google.gerrit.extensions.annotations.RequiresCapability;
 import com.google.gerrit.sshd.CommandMetaData;
 import com.google.gerrit.sshd.SshCommand;
 
-@RequiresCapability(AdminCookbookCapability.ADMIN_COOKBOOK)
-@CommandMetaData(name = "admin", description = "Administrate the cookbook")
+@RequiresCapability(GlobalCapability.ADMINISTRATE_SERVER)
+@CommandMetaData(name = "admin", description = "administrator the trnassion cookbook")
 public final class AdminCookbookCommand extends SshCommand {
 
   @Override
   protected void run() {
-    stdout.print("Hello, cookbook administrator\n");
+    stdout.print("Hello, trnassion administrator\n");
   }
 }
