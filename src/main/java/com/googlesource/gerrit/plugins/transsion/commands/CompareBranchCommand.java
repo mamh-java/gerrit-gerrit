@@ -14,10 +14,12 @@
 
 package com.googlesource.gerrit.plugins.transsion.commands;
 
+import com.google.common.io.ByteStreams;
 import com.google.gerrit.common.data.GlobalCapability;
 import com.google.gerrit.extensions.annotations.RequiresCapability;
 import com.google.gerrit.reviewdb.client.Project;
 import com.google.gerrit.server.IdentifiedUser;
+import com.google.gerrit.server.config.SitePaths;
 import com.google.gerrit.server.git.GitRepositoryManager;
 import com.google.gerrit.server.git.VisibleRefFilter;
 import com.google.gerrit.server.permissions.PermissionBackend;
@@ -30,23 +32,24 @@ import com.google.gwtorm.server.OrmException;
 import com.google.inject.Inject;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.kohsuke.args4j.Option;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.eclipse.jgit.lib.RefDatabase.ALL;
 
 @RequiresCapability(GlobalCapability.ADMINISTRATE_SERVER)
-@CommandMetaData(name = "print", description = "Print greeting in different languages")
+@CommandMetaData(name = "compare-branch", description = "compare two branch revision tag by git log comamnd")
 public final class CompareBranchCommand extends SshCommand {
   @Inject
   private IdentifiedUser currentUser;
@@ -58,13 +61,15 @@ public final class CompareBranchCommand extends SshCommand {
   private VisibleRefFilter.Factory refFilterFactory;
   @Inject
   private GitRepositoryManager repoManager;
+  @Inject
+  private SitePaths sitePaths;
 
   @Option(
       name = "--project",
       aliases = {"-p"},
       metaVar = "PROJECT",
       required = true,
-      usage = "project for which the refs should be listed")
+      usage = "project for compare")
   private ProjectControl projectControl;
 
 
@@ -83,43 +88,43 @@ public final class CompareBranchCommand extends SshCommand {
       return;
     }
 
+
+
     Project.NameKey projectName = projectControl.getProject().getNameKey();
     try (Repository repo = repoManager.openRepository(projectName);
          ManualRequestContext ctx = requestContext.openAs(currentUser.getAccountId())) {
       try {
-        String branch = repo.getBranch();
-        stdout.println("all branch: " + branch);
+        String directory = repo.getDirectory().getAbsolutePath(); // the git directory
+        List<String> argv = new ArrayList<>();
+        argv.add("git");
+        argv.add("--no-pager");
+        argv.add("-C");
+        argv.add(directory);
+        argv.add("log");
+        argv.add("--left-right");
+        argv.add("--cherry-pick");
+        argv.add("--date=short");
+        argv.add("--pretty='%m || %h ||  %<(120,trunc)%s (%<(10,trunc)%an) (%cd)'");
+        argv.add(newRevision + "..." + oldRevision);
 
-        File directory = repo.getDirectory();
-        stdout.println("git dir: " + directory);
-        String cmd = "git --no-pager -C " + directory.getAbsolutePath() + " log --left-right --cherry-pick --date=short --pretty='%m || %h ||  %<(120,trunc)%s (%<(10,trunc)%an) (%cd)' '" + oldRevision + "'...'" + newRevision + "' ";
-        stdout.println("git cmd: " + cmd);
-        Process process = Runtime.getRuntime().exec(cmd);
-        InputStreamReader reader = new InputStreamReader(process.getInputStream());
-        LineNumberReader lineNumberReader = new LineNumberReader(reader);
-        String buffer = "";
-        while ((buffer = lineNumberReader.readLine()) != null) {
-          stdout.println(buffer);
-        }
-        for (RevCommit revCommit : Git.wrap(repo).log().call()) {
-          stdout.println(revCommit.toString());
-        }
+        ProcessBuilder pb = new ProcessBuilder(argv);
+        pb.redirectErrorStream(true);
 
-        Map<String, Ref> refsMap =
-            refFilterFactory
-                .create(projectControl.getProjectState(), repo)
-                .filter(repo.getRefDatabase().getRefs(ALL), false);
+        Map<String, String> env = pb.environment();
+        env.put("GERRIT_SITE", sitePaths.site_path.toAbsolutePath().toString());
 
+        Process ps = pb.start();
 
-        for (String ref : refsMap.keySet()) {
-          stdout.println(ref);
-        }
+        ps.getOutputStream().close();
+        String out = new String(ByteStreams.toByteArray(ps.getInputStream()), UTF_8);
+        ps.waitFor();
+        stdout.println(argv);
+        stdout.println(out);
+        //String cmd = "git --no-pager -C " + directory + " log --left-right --cherry-pick --date=short --pretty='%m || %h ||  %<(120,trunc)%s (%<(10,trunc)%an) (%cd)' '" + oldRevision + "'...'" + newRevision + "' ";
+        ps.destroy();
       } catch (IOException e) {
         throw new Failure(1, "fatal: Error reading refs: '" + projectName, e);
-      } catch (NoHeadException e) {
-        e.printStackTrace();
-      } catch (GitAPIException e) {
-        e.printStackTrace();
+      } catch (InterruptedException e) {
       }
     } catch (RepositoryNotFoundException e) {
       throw die("'" + projectName + "': not a git archive");
