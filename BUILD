@@ -9,9 +9,4 @@ gerrit_plugin(
         "Gerrit-SshModule: com.googlesource.gerrit.plugins.transsion.SshModule",
     ],
     resources = glob(["src/main/resources/**/*"]),
-    deps = [
-        "//plugins/hooks",
-    ],
 )
-
-
