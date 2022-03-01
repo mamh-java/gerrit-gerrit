@@ -66,11 +66,7 @@ export class GrCommitInfo extends LitElement {
           this.commitInfo,
           this.serverConfig
         )}"
-        >${this._computeShortHash(
-          this.change,
-          this.commitInfo,
-          this.serverConfig
-        )}</a
+        >${this.commitInfo?.commit}</a
       >
       <gr-copy-clipboard
         hastooltip
