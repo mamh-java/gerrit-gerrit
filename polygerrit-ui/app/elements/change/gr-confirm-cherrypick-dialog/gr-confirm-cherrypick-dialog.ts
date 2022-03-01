@@ -307,7 +307,7 @@ export class GrConfirmCherrypickDialog extends PolymerElement {
 
   _generateRandomCherryPickTopic(change: ChangeInfo) {
     const randomString = Math.random().toString(36).substr(2, 10);
-    const message = `cherrypick-${change.topic}-${randomString}`;
+    const message = `${change.topic}-cherrypick-${randomString}`;
     return message;
   }
 
