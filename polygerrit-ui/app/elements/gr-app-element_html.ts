@@ -180,10 +180,10 @@ export const htmlTemplate = html`
   <footer r="contentinfo" aria-hidden="[[_footerHeaderAriaHidden]]">
     <div>
       Powered by
-      <a href="https://www.gerritcodereview.com/" rel="noopener" target="_blank"
-        >Gerrit Code Review</a
+      <a href="http://xxx.xxx" rel="noopener" target="_blank"
+        >Blackshark SCM</a
       >
-      ([[_version]])
+      ([[_version]])(gerrit 负责人 武彩云)
       <gr-endpoint-decorator name="footer-left"></gr-endpoint-decorator>
     </div>
     <div>
