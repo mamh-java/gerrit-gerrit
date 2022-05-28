@@ -25,12 +25,10 @@ export const htmlTemplate = html`
   </style>
   <div class="container">
     <template is="dom-if" if="[[_showWebLink]]">
-      <a target="_blank" rel="noopener" href$="[[_webLink]]"
-        >[[_computeShortHash(change, commitInfo, serverConfig)]]</a
-      >
+      [[commitInfo.commit]]  &nbsp; &nbsp;  点右边按钮可以直接复制 <span aria-hidden="true" class="arrow">→</span>
     </template>
     <template is="dom-if" if="[[!_showWebLink]]">
-      [[_computeShortHash(change, commitInfo, serverConfig)]]
+      [[commitInfo.commit]]  &nbsp; &nbsp;  点右边按钮可以直接复制    <span aria-hidden="true" class="arrow">→</span>
     </template>
     <gr-copy-clipboard
       has-tooltip=""
@@ -39,5 +37,13 @@ export const htmlTemplate = html`
       text="[[commitInfo.commit]]"
     >
     </gr-copy-clipboard>
+    <template is="dom-if" if="[[_showWebLink]]">
+      <span class="separator"></span>
+      点右边链接跳转到gitiles页面  <span aria-hidden="true" class="arrow">→</span>
+
+      <a target="_blank" rel="noopener" href$="[[_webLink]]"
+        >gititles</a
+      >
+    </template>
   </div>
 `;
