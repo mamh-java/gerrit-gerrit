@@ -51,6 +51,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.apache.commons.lang.StringUtils;
 
 @Singleton
 class BecomeAnyAccountLoginServlet extends HttpServlet {
@@ -170,11 +171,23 @@ class BecomeAnyAccountLoginServlet extends HttpServlet {
       } else {
         displayName = accountId.toString();
       }
-
+      if( StringUtils.containsIgnoreCase(displayName, "admin")||
+        StringUtils.containsIgnoreCase(displayName, "buildfarm")||
+        StringUtils.containsIgnoreCase(displayName, "jenkins")
+      ){ // 跳过展示 管理员账号的账号
+        continue;
+      }
+      
+      // a 标签
       Element linkElement = doc.createElement("a");
       linkElement.setAttribute("href", "?account_id=" + account.id().toString());
-      linkElement.setTextContent(displayName);
+      linkElement.setTextContent(displayName + ", " + 
+                account.preferredEmail() + ", " + 
+                account.fullName()
+      );
       userlistElement.appendChild(linkElement);
+
+
       userlistElement.appendChild(doc.createElement("br"));
     }
 
