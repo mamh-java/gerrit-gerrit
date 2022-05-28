@@ -37,6 +37,7 @@ export const htmlTemplate = html`
       );
     }
   </style>
+  <!--
   <button
     role="checkbox"
     title="[[createTitle(Shortcut.TOGGLE_CHANGE_STAR,
@@ -49,4 +50,5 @@ export const htmlTemplate = html`
       icon$="[[_computeStarIcon(change.starred)]]"
     ></iron-icon>
   </button>
+  -->
 `;
