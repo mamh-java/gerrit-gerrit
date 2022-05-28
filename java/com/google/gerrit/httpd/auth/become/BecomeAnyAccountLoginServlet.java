@@ -171,18 +171,21 @@ class BecomeAnyAccountLoginServlet extends HttpServlet {
       } else {
         displayName = accountId.toString();
       }
-      if( StringUtils.containsIgnoreCase(displayName, "admin")||
+      if( StringUtils.containsIgnoreCase(displayName, "jira")||
         StringUtils.containsIgnoreCase(displayName, "buildfarm")||
+        StringUtils.containsIgnoreCase(displayName, "bright.ma")||
+        StringUtils.containsIgnoreCase(displayName, "annie.wu")||
+        StringUtils.containsIgnoreCase(displayName, "hans.han")||
         StringUtils.containsIgnoreCase(displayName, "jenkins")
       ){ // 跳过展示 管理员账号的账号
         continue;
       }
-      
+
       // a 标签
       Element linkElement = doc.createElement("a");
       linkElement.setAttribute("href", "?account_id=" + account.id().toString());
-      linkElement.setTextContent(displayName + ", " + 
-                account.preferredEmail() + ", " + 
+      linkElement.setTextContent(displayName + ", " +
+                account.preferredEmail() + ", " +
                 account.fullName()
       );
       userlistElement.appendChild(linkElement);
