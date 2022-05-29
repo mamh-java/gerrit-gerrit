@@ -106,6 +106,7 @@ import {
   ActionType,
   ChangeActions,
   PrimaryActionKey,
+  BlacksharkActionKey,
   RevisionActions,
 } from '../../../api/change-actions';
 import {ErrorCallback} from '../../../api/rest';
@@ -249,6 +250,7 @@ const ACTIONS_WITH_ICONS = new Set([
   ChangeActions.EDIT,
   ChangeActions.PUBLISH_EDIT,
   ChangeActions.READY,
+  ChangeActions.STARTGB,
   ChangeActions.REBASE_EDIT,
   ChangeActions.RESTORE,
   ChangeActions.REVERT,
@@ -399,6 +401,10 @@ export class GrChangeActions
     ChangeActions.READY,
     RevisionActions.SUBMIT,
   ];
+  @property({type: Array})
+  blacksharkActionKeys: BlacksharkActionKey[] = [ // 黑鲨的 action 组件
+    ChangeActions.STARTGB,
+  ];
 
   @property({type: Boolean})
   disableEdit = false;
@@ -468,6 +474,9 @@ export class GrChangeActions
     observer: '_filterPrimaryActions',
   })
   _topLevelActions?: UIActionInfo[];
+
+  @property({type: Array})
+  _topLevelBlacksharkActions?: UIActionInfo[];  // 黑鲨自定义的 action 组件的一个数组
 
   @property({type: Array})
   _topLevelPrimaryActions?: UIActionInfo[];
@@ -1981,11 +1990,15 @@ export class GrChangeActions
   }
 
   _filterPrimaryActions(_topLevelActions: UIActionInfo[]) {
+    this._topLevelBlacksharkActions = _topLevelActions.filter(
+      action =>  (this.blacksharkActionKeys.includes(action.__key as BlacksharkActionKey))  // 过滤黑鲨的action组件
+    );
+
     this._topLevelPrimaryActions = _topLevelActions.filter(
-      action => action.__primary
+      action => action.__primary && (! this.blacksharkActionKeys.includes(action.__key as BlacksharkActionKey)) // 需要排除掉黑鲨的action组件
     );
     this._topLevelSecondaryActions = _topLevelActions.filter(
-      action => !action.__primary
+      action => !action.__primary && (! this.blacksharkActionKeys.includes(action.__key as BlacksharkActionKey)) // 需要排除掉黑鲨的action组件
     );
   }
 
