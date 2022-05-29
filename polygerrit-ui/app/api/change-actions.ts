@@ -71,6 +71,7 @@ export enum RevisionActions {
 }
 
 export type PrimaryActionKey = ChangeActions | RevisionActions;
+export type BlacksharkActionKey = ChangeActions | RevisionActions;
 
 export declare interface ChangeActionsPluginApi {
   // Deprecated. This API method will be removed.
