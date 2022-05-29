@@ -48,6 +48,7 @@ import com.google.gerrit.server.change.SetHashtagsOp;
 import com.google.gerrit.server.change.SetPrivateOp;
 import com.google.gerrit.server.change.SetTopicOp;
 import com.google.gerrit.server.change.WorkInProgressOp;
+import com.google.gerrit.server.change.WorkAddMessageOp;
 import com.google.gerrit.server.comment.CommentContextLoader;
 import com.google.gerrit.server.restapi.change.Reviewed.DeleteReviewed;
 import com.google.gerrit.server.restapi.change.Reviewed.PutReviewed;
@@ -122,6 +123,7 @@ public class ChangeRestApiModule extends RestApiModule {
     put(CHANGE_KIND, "unignore").to(Unignore.class);
     post(CHANGE_KIND, "wip").to(SetWorkInProgress.class);
     post(CHANGE_KIND, "ready").to(SetReadyForReview.class);
+    post(CHANGE_KIND, "startgb").to(SetStartGerritBuild.class);
     put(CHANGE_KIND, "message").to(PutMessage.class);
     post(CHANGE_KIND, "check.submit_requirement").to(CheckSubmitRequirement.class);
 
@@ -222,6 +224,7 @@ public class ChangeRestApiModule extends RestApiModule {
     factory(SetTopicOp.Factory.class);
     factory(SetPrivateOp.Factory.class);
     factory(WorkInProgressOp.Factory.class);
+    factory(WorkAddMessageOp.Factory.class);
     factory(AddToAttentionSetOp.Factory.class);
     factory(RemoveFromAttentionSetOp.Factory.class);
     factory(AttentionSetEmail.Factory.class);
