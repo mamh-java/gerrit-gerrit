@@ -81,6 +81,31 @@ export const htmlTemplate = html`
       [[_actionLoadingMessage]]</span
     >
     <section
+      id="blacksharkActions"
+      hidden$="[[_shouldHideActions(_topLevelActions.*, _loading)]]"
+    >
+      <template is="dom-repeat" items="[[_topLevelBlacksharkActions]]" as="action">
+        <gr-button
+          link=""
+          title$="[[action.title]]"
+          has-tooltip="[[_computeHasTooltip(action.title)]]"
+          position-below="true"
+          data-action-key$="[[action.__key]]"
+          data-action-type$="[[action.__type]]"
+          data-label$="[[action.label]]"
+          disabled$="[[_calculateDisabled(action, _hasKnownChainState)]]"
+          on-click="_handleActionTap"
+        >
+          <iron-icon
+            class$="[[_computeHasIcon(action)]]"
+            icon$="gr-icons:[[action.icon]]"
+          ></iron-icon>
+          [[action.label]]
+        </gr-button>
+      </template>
+    </section>
+
+    <section
       id="primaryActions"
       hidden$="[[_shouldHideActions(_topLevelActions.*, _loading)]]"
     >
