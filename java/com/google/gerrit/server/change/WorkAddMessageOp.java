@@ -15,28 +15,23 @@
 package com.google.gerrit.server.change;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.gerrit.common.Nullable;
 import com.google.gerrit.entities.Change;
 import com.google.gerrit.entities.ChangeMessage;
 import com.google.gerrit.entities.PatchSet;
-import com.google.gerrit.exceptions.StorageException;
 import com.google.gerrit.extensions.api.changes.NotifyHandling;
 import com.google.gerrit.extensions.common.InputWithMessage;
 import com.google.gerrit.server.ChangeMessagesUtil;
 import com.google.gerrit.server.PatchSetUtil;
-import com.google.gerrit.server.extensions.events.WorkInProgressStateChanged;
-import com.google.gerrit.server.notedb.ChangeNotes;
 import com.google.gerrit.server.notedb.ChangeUpdate;
 import com.google.gerrit.server.update.BatchUpdateOp;
 import com.google.gerrit.server.update.ChangeContext;
 import com.google.gerrit.server.update.Context;
-import com.google.gerrit.server.update.RepoView;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import java.io.IOException;
 
-/* Set work in progress or ready for review state on a change */
+
 public class WorkAddMessageOp implements BatchUpdateOp {
   public static class Input extends InputWithMessage {
     @Nullable public NotifyHandling notify;
@@ -51,40 +46,25 @@ public class WorkAddMessageOp implements BatchUpdateOp {
   }
 
   public interface Factory {
-    WorkAddMessageOp create(boolean b, Input in);
+    WorkAddMessageOp create(String msg, Input in);
   }
 
   private final ChangeMessagesUtil cmUtil;
-  private final EmailReviewComments.Factory email;
-  private final PatchSetUtil psUtil;
-  private final boolean workInProgress;
+  private final String message;
   private final Input in;
-  private final WorkInProgressStateChanged stateChanged;
 
-  private boolean sendEmail = true;
   private Change change;
-  private ChangeNotes notes;
   private PatchSet ps;
   private ChangeMessage cmsg;
 
   @Inject
   WorkAddMessageOp(
       ChangeMessagesUtil cmUtil,
-      EmailReviewComments.Factory email,
-      PatchSetUtil psUtil,
-      WorkInProgressStateChanged stateChanged,
-      @Assisted boolean workInProgress,
+      @Assisted String message,
       @Assisted Input in) {
     this.cmUtil = cmUtil;
-    this.email = email;
-    this.psUtil = psUtil;
-    this.stateChanged = stateChanged;
-    this.workInProgress = workInProgress;
+    this.message = message;
     this.in = in;
-  }
-
-  public void suppressEmail() {
-    this.sendEmail = false;
   }
 
   @Override
@@ -97,8 +77,7 @@ public class WorkAddMessageOp implements BatchUpdateOp {
 
   private void addMessage(ChangeContext ctx, ChangeUpdate update) {
     Change c = ctx.getChange();
-    StringBuilder buf =
-        new StringBuilder("start_TriggerGerritBuild");
+    StringBuilder buf = new StringBuilder(this.message);
 
     String m = Strings.nullToEmpty(in == null ? null : in.message).trim();
     if (!m.isEmpty()) {
@@ -107,7 +86,7 @@ public class WorkAddMessageOp implements BatchUpdateOp {
     }
 
     cmsg =
-        ChangeMessagesUtil.newMessage(ctx, buf.toString(), "riggerGerritBuild");
+        ChangeMessagesUtil.newMessage(ctx, buf.toString(), ChangeMessagesUtil.TAG_SET_STARTGB);
 
     cmUtil.addChangeMessage(update, cmsg);
   }
