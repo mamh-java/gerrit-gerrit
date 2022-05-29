@@ -63,7 +63,7 @@ public class SetStartGerritBuild
       
       bu.setNotify(NotifyResolver.Result.create(firstNonNull(input.notify, NotifyHandling.ALL)));
       
-      bu.addOp(rsrc.getChange().getId(), opFactory.create(false, input));
+      bu.addOp(rsrc.getChange().getId(), opFactory.create("start_TriggerGerritBuild", input));
       
       bu.execute();
       
