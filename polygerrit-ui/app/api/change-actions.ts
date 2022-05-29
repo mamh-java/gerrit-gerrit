@@ -70,6 +70,7 @@ export enum RevisionActions {
 }
 
 export type PrimaryActionKey = ChangeActions | RevisionActions;
+export type BlacksharkActionKey = ChangeActions | RevisionActions;
 
 export interface ChangeActionsPluginApi {
   addPrimaryActionKey(key: PrimaryActionKey): void;
