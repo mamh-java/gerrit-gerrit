@@ -14,15 +14,21 @@
 
 package com.google.gerrit.server.change;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.base.Strings;
 import com.google.gerrit.common.Nullable;
 import com.google.gerrit.entities.Change;
+import com.google.gerrit.entities.HumanComment;
 import com.google.gerrit.entities.ChangeMessage;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.extensions.api.changes.NotifyHandling;
 import com.google.gerrit.extensions.common.InputWithMessage;
+import com.google.gerrit.server.extensions.events.CommentAdded;
 import com.google.gerrit.server.ChangeMessagesUtil;
 import com.google.gerrit.server.PatchSetUtil;
+import com.google.gerrit.server.CommentsUtil;
+import com.google.gerrit.server.PublishCommentUtil;
+import com.google.gerrit.server.notedb.ChangeNotes;
 import com.google.gerrit.server.notedb.ChangeUpdate;
 import com.google.gerrit.server.update.BatchUpdateOp;
 import com.google.gerrit.server.update.ChangeContext;
@@ -30,7 +36,8 @@ import com.google.gerrit.server.update.Context;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import java.io.IOException;
-
+import java.util.ArrayList;
+import java.util.List;
 
 public class WorkAddMessageOp implements BatchUpdateOp {
   public static class Input extends InputWithMessage {
@@ -52,25 +59,48 @@ public class WorkAddMessageOp implements BatchUpdateOp {
   private final ChangeMessagesUtil cmUtil;
   private final String message;
   private final Input in;
+  private final CommentAdded commentAdded;
+  private final PatchSetUtil psUtil;
+  private final CommentsUtil commentsUtil;
+  private final PublishCommentUtil publishCommentUtil;
 
   private Change change;
   private PatchSet ps;
+  private ChangeNotes notes;
   private ChangeMessage cmsg;
+  private List<HumanComment> comments = new ArrayList<>();
 
   @Inject
   WorkAddMessageOp(
       ChangeMessagesUtil cmUtil,
+      PatchSetUtil psUtil,
+      CommentAdded commentAdded,
+      CommentsUtil commentsUtil,
+      PublishCommentUtil publishCommentUtil,
       @Assisted String message,
       @Assisted Input in) {
     this.cmUtil = cmUtil;
+    this.psUtil = psUtil;
     this.message = message;
     this.in = in;
+    this.commentAdded = commentAdded;
+    this.commentsUtil = commentsUtil;
+    this.publishCommentUtil = publishCommentUtil;
+
   }
 
   @Override
   public boolean updateChange(ChangeContext ctx) {
     change = ctx.getChange();
+    notes = ctx.getNotes();
+    ps = psUtil.get(ctx.getNotes(), change.currentPatchSetId());
+
+    comments = commentsUtil.draftByChangeAuthor(ctx.getNotes(), ctx.getUser().getAccountId());
+
+
     ChangeUpdate update = ctx.getUpdate(change.currentPatchSetId());
+    publishCommentUtil.publish(ctx, update, comments, null);
+
     addMessage(ctx, update);
     return true;
   }
@@ -85,14 +115,26 @@ public class WorkAddMessageOp implements BatchUpdateOp {
       buf.append(m);
     }
 
-    cmsg =
-        ChangeMessagesUtil.newMessage(ctx, buf.toString(), ChangeMessagesUtil.TAG_SET_STARTGB);
+    cmsg = 
+      ChangeMessagesUtil.newMessage(
+        ctx, buf.toString(), ChangeMessagesUtil.TAG_SET_STARTGB);
 
     cmUtil.addChangeMessage(update, cmsg);
   }
 
   @Override
   public void postUpdate(Context ctx) {
+    if (cmsg == null || change == null || ps == null) {
+      return;
+    }
 
+    commentAdded.fire(
+        change,
+        ps,
+        ctx.getAccount(),
+        cmsg.getMessage(),
+        ImmutableMap.of(),
+        ImmutableMap.of(),
+        ctx.getWhen());
   }
 }
