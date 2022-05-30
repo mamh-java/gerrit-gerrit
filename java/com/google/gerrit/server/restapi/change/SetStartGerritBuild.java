@@ -52,7 +52,7 @@ public class SetStartGerritBuild
   @Override
   public Response<String> apply(ChangeResource rsrc, Input input)
       throws RestApiException, UpdateException, PermissionBackendException {
-    rsrc.permissions().check(ChangePermission.TOGGLE_WORK_IN_PROGRESS_STATE);
+    rsrc.permissions().check(ChangePermission.READ);
 
     Change change = rsrc.getChange();
     if (!change.isNew()) {
