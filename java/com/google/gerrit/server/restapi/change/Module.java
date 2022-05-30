@@ -126,6 +126,7 @@ public class Module extends RestApiModule {
     post(CHANGE_KIND, "wip").to(SetWorkInProgress.class);
     post(CHANGE_KIND, "ready").to(SetReadyForReview.class);
     post(CHANGE_KIND, "startgb").to(SetStartGerritBuild.class);
+    post(CHANGE_KIND, "chkjira").to(SetStartJiraBuild.class);
     put(CHANGE_KIND, "message").to(PutMessage.class);
 
     get(CHANGE_KIND, "suggest_reviewers").to(SuggestChangeReviewers.class);
