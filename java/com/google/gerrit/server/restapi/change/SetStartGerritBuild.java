@@ -74,7 +74,7 @@ public class SetStartGerritBuild
   @Override
   public Description getDescription(ChangeResource rsrc) {
     return new Description()
-        .setLabel("start gb")
+        .setLabel("startgb")
         .setTitle("点我触发门禁！")
         .setVisible(and(
                 rsrc.getChange().isNew(),
