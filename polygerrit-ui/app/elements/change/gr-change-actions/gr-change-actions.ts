@@ -251,6 +251,7 @@ const ACTIONS_WITH_ICONS = new Set([
   ChangeActions.PUBLISH_EDIT,
   ChangeActions.READY,
   ChangeActions.STARTGB,
+  ChangeActions.STARTJIRA,
   ChangeActions.REBASE_EDIT,
   ChangeActions.RESTORE,
   ChangeActions.REVERT,
@@ -404,6 +405,7 @@ export class GrChangeActions
   @property({type: Array})
   blacksharkActionKeys: BlacksharkActionKey[] = [ // 黑鲨的 action 组件
     ChangeActions.STARTGB,
+    ChangeActions.STARTJIRA,
   ];
 
   @property({type: Boolean})
