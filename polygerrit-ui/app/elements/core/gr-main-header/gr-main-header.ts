@@ -46,7 +46,7 @@ interface MainHeaderLinkGroup {
 
 const DEFAULT_LINKS: MainHeaderLinkGroup[] = [
   {
-    title: 'Changes',
+    title: '全部提交',
     links: [
       {
         url: '/q/status:open+-is:wip',
@@ -66,28 +66,32 @@ const DEFAULT_LINKS: MainHeaderLinkGroup[] = [
 
 const DOCUMENTATION_LINKS: MainHeaderLink[] = [
   {
+    url: 'http://wiki.blackshark.com/pages/viewpage.action?pageId=360739',
+    name: '黑鲨 WIKI',
+  },
+  {
+    url: 'http://jira.blackshark.com/',
+    name: '黑鲨 JIRA',
+  },
+  {
+    url: 'http://wiki.blackshark.com/pages/viewpage.action?pageId=360876',
+    name: '权限及环境',
+  },
+  {
+    url: 'http://wiki.blackshark.com/pages/viewpage.action?pageId=360878',
+    name: '代码库下载路径',
+  },
+  {
+    url: 'http://jenkins.blackshark.com/job/ODVB/',
+    name: 'Jenkins ODVB',
+  },
+  {
+    url: 'http://jenkins.blackshark.com/job/ODVB2/',
+    name: 'Jenkins ODVB2',
+  },
+  {
     url: '/index.html',
-    name: 'Table of Contents',
-  },
-  {
-    url: '/user-search.html',
-    name: 'Searching',
-  },
-  {
-    url: '/user-upload.html',
-    name: 'Uploading',
-  },
-  {
-    url: '/access-control.html',
-    name: 'Access Control',
-  },
-  {
-    url: '/rest-api.html',
-    name: 'REST API',
-  },
-  {
-    url: '/intro-project-owner.html',
-    name: 'Project Owner Guide',
+    name: 'Gerrit 文档'
   },
 ];
 
@@ -206,19 +210,19 @@ export class GrMainHeader extends PolymerElement {
     });
     if (userLinks && userLinks.length > 0) {
       links.push({
-        title: 'Your',
+        title: '我的提交',
         links: userLinks.slice(),
       });
     }
     links.push({
-      title: 'Browse',
+      title: '浏览仓库',
       links: adminLinks.slice(),
     });
 
     const docLinks = this._getDocLinks(docBaseUrl, DOCUMENTATION_LINKS);
     if (docLinks.length) {
       links.push({
-        title: 'Documentation',
+        title: '点我有惊喜',
         links: docLinks,
         class: 'hideOnMobile',
       });
@@ -256,6 +260,9 @@ export class GrMainHeader extends PolymerElement {
       let url = docBaseUrl;
       if (url && url[url.length - 1] === '/') {
         url = url.substring(0, url.length - 1);
+      }
+      if(link.url.startsWith("http")){
+        url = ""
       }
       return {
         url: url + link.url,
