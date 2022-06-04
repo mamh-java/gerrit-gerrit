@@ -46,7 +46,7 @@ interface MainHeaderLinkGroup {
 
 const DEFAULT_LINKS: MainHeaderLinkGroup[] = [
   {
-    title: 'Changes',
+    title: '全部提交',
     links: [
       {
         url: '/q/status:open+-is:wip',
@@ -66,28 +66,12 @@ const DEFAULT_LINKS: MainHeaderLinkGroup[] = [
 
 const DOCUMENTATION_LINKS: MainHeaderLink[] = [
   {
+    url: 'https://github.com/mamh-java/gerrit-gerrit/commits/blackshark-v3.4.3',
+    name: '马哥私房菜',
+  },
+  {
     url: '/index.html',
-    name: 'Table of Contents',
-  },
-  {
-    url: '/user-search.html',
-    name: 'Searching',
-  },
-  {
-    url: '/user-upload.html',
-    name: 'Uploading',
-  },
-  {
-    url: '/access-control.html',
-    name: 'Access Control',
-  },
-  {
-    url: '/rest-api.html',
-    name: 'REST API',
-  },
-  {
-    url: '/intro-project-owner.html',
-    name: 'Project Owner Guide',
+    name: 'Gerrit 文档'
   },
 ];
 
@@ -206,19 +190,19 @@ export class GrMainHeader extends PolymerElement {
     });
     if (userLinks && userLinks.length > 0) {
       links.push({
-        title: 'Your',
+        title: '我的提交',
         links: userLinks.slice(),
       });
     }
     links.push({
-      title: 'Browse',
+      title: '浏览仓库',
       links: adminLinks.slice(),
     });
 
     const docLinks = this._getDocLinks(docBaseUrl, DOCUMENTATION_LINKS);
     if (docLinks.length) {
       links.push({
-        title: 'Documentation',
+        title: '点我有惊喜',
         links: docLinks,
         class: 'hideOnMobile',
       });
@@ -256,6 +240,9 @@ export class GrMainHeader extends PolymerElement {
       let url = docBaseUrl;
       if (url && url[url.length - 1] === '/') {
         url = url.substring(0, url.length - 1);
+      }
+      if(link.url.startsWith("http")){
+        url = ""
       }
       return {
         url: url + link.url,
