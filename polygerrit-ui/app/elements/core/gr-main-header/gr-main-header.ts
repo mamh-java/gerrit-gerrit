@@ -232,6 +232,11 @@ export class GrMainHeader extends PolymerElement {
         links: userLinks.slice(),
       });
     }
+    links.push({
+      title: 'Browse',
+      links: adminLinks.slice(),
+    });
+
     const docLinks = this._getDocLinks(docBaseUrl, DOCUMENTATION_LINKS);
     if (docLinks.length) {
       links.push({
@@ -240,10 +245,7 @@ export class GrMainHeader extends PolymerElement {
         class: 'hideOnMobile',
       });
     }
-    links.push({
-      title: 'Browse',
-      links: adminLinks.slice(),
-    });
+
     const topMenuLinks: {[name: string]: MainHeaderLink[]} = {};
     links.forEach(link => {
       topMenuLinks[link.title] = link.links;
