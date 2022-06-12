@@ -178,11 +178,7 @@ public class PreferencesParserUtil {
     }
     if (my.isEmpty()) {
       my.add(new MenuItem("Dashboard", "#/dashboard/self", null));
-      my.add(new MenuItem("Draft Comments", "#/q/has:draft", null));
-      my.add(new MenuItem("Edits", "#/q/has:edit", null));
-      my.add(new MenuItem("Watched Changes", "#/q/is:watched+is:open", null));
-      my.add(new MenuItem("Starred Changes", "#/q/is:starred", null));
-      my.add(new MenuItem("Groups", "#/settings/#Groups", null));
+      my.add(new MenuItem("自定义菜单", "#/settings/#Menu", null));
     }
     return my;
   }
