@@ -344,6 +344,10 @@ export class GrDashboardView extends PolymerElement {
         if (!c1Update || !c2Update) return c1Update ? 1 : -1;
         return parseDate(c1Update).valueOf() - parseDate(c2Update).valueOf();
       });
+    } else {
+      sortedResults.sort((c1, c2) => {
+        return c2._number - c1._number;
+      });
     }
     return sortedResults;
   }
