@@ -441,6 +441,19 @@ export class GrMessagesList extends PolymerElement {
   _combinedMessagesChanged(combinedMessages?: CombinedMessage[]) {
     if (!combinedMessages) return;
     if (combinedMessages.length === 0) return;
+
+    combinedMessages.sort((o1, o2) =>{ // 排序，按照patch set number 来排序。
+        try {
+          if (o1 && o2) {
+            return <number>o1._revision_number - <number>o2._revision_number;
+          } else {
+            return 0;
+          }
+        } catch (e) {
+          return 0;
+        }
+    });
+
     for (let i = 0; i < combinedMessages.length; i++) {
       this.notifyPath(`_combinedMessages.${i}.commentThreads`);
     }
