@@ -66,27 +66,27 @@ const DEFAULT_LINKS: MainHeaderLinkGroup[] = [
 
 const DOCUMENTATION_LINKS: MainHeaderLink[] = [
   {
-    url: 'http://wiki.blackshark.com/pages/viewpage.action?pageId=360739',
-    name: '黑鲨 WIKI',
+    url: 'http://wiki.blackshark.com/pages/viewpage.action?pageId=111931944',
+    name: '小米环境应知应会',
   },
   {
     url: 'http://jira.blackshark.com/',
     name: '黑鲨 JIRA',
   },
   {
-    url: 'http://wiki.blackshark.com/pages/viewpage.action?pageId=360876',
-    name: '权限及环境',
+    url: 'http://wiki.blackshark.com/pages/viewpage.action?pageId=111215208',
+    name: '小米VM分配',
   },
   {
-    url: 'http://wiki.blackshark.com/pages/viewpage.action?pageId=360878',
-    name: '代码库下载路径',
+    url: 'http://wiki.blackshark.com/display/y1/02.08.SM8550_T_Source_Code_Download',
+    name: 'SM8550_T下载路径',
   },
   {
-    url: 'http://jenkins.blackshark.com/job/ODVB/',
+    url: 'http://jenkins-xm.blackshark.com/job/ODVB/',
     name: 'Jenkins ODVB',
   },
   {
-    url: 'http://jenkins.blackshark.com/job/ODVB2/',
+    url: 'http://jenkins-xm.blackshark.com/job/ODVB2/',
     name: 'Jenkins ODVB2',
   },
   {
