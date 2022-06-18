@@ -137,3 +137,14 @@ export function truncatePath(path: string, threshold = 1) {
   // Character is an ellipsis.
   return `\u2026/${pathPieces.slice(index).join('/')}`;
 }
+export function truncatePrefix(path: string, threshold = 1) {
+  const pathPieces = path.split('/');
+
+  if (pathPieces.length <= threshold) {
+    return path;
+  }
+
+  const index = threshold;
+  // Character is an ellipsis.
+  return `${pathPieces.slice(index).join('/')}`;
+}
