@@ -80,7 +80,7 @@ export const htmlTemplate = html`
     on-create-clicked="_handleCreateClicked"
     path="[[_getPath(_repo, detailType)]]"
   >
-    <table id="list" class="genericList gr-form-styles">
+    <table id="list" class="genericList gr-table-styles">
       <tbody>
         <tr class="headerRow">
           <th class="name topHeader">Name</th>
