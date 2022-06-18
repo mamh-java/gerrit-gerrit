@@ -33,7 +33,7 @@ import {getDisplayName} from '../../../utils/display-name-util';
 import {getPluginEndpoints} from '../../shared/gr-js-api-interface/gr-plugin-endpoints';
 import {getPluginLoader} from '../../shared/gr-js-api-interface/gr-plugin-loader';
 import {appContext} from '../../../services/app-context';
-import {truncatePath} from '../../../utils/path-list-util';
+import {truncatePrefix} from '../../../utils/path-list-util';
 import {changeStatuses} from '../../../utils/change-util';
 import {isSelf, isServiceUser} from '../../../utils/account-util';
 import {customElement, property} from '@polymer/decorators';
@@ -304,7 +304,7 @@ export class GrChangeListItem extends PolymerElement {
     if (change.internalHost) {
       str += change.internalHost + '/';
     }
-    str += truncatePath(change.project, 2);
+    str += truncatePrefix(change.project, 2);
     return str;
   }
 
