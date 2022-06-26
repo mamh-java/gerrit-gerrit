@@ -274,11 +274,6 @@ export class GrChangeListView extends PolymerElement {
     if (!changes || !changes.length) {
       return;
     }
-    if (changes) {
-      changes.sort((c1, c2) => {
-        return c2._number - c1._number;
-      });
-    }
     if (USER_QUERY_PATTERN.test(this._query)) {
       const owner = changes[0].owner;
       const userId = owner._account_id ? owner._account_id : owner.email;
