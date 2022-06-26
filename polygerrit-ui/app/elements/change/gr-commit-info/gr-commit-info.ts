@@ -57,21 +57,7 @@ export class GrCommitInfo extends LitElement {
 
   override render() {
     return html` <div class="container">
-      <a
-        target="_blank"
-        rel="noopener"
-        href="${this.computeCommitLink(
-          this._webLink,
-          this.change,
-          this.commitInfo,
-          this.serverConfig
-        )}"
-        >${this._computeShortHash(
-          this.change,
-          this.commitInfo,
-          this.serverConfig
-        )}</a
-      >
+      ${this.commitInfo?.commit}<span aria-hidden="true" class="arrow">→</span>
       <gr-copy-clipboard
         hastooltip
         .buttonTitle="${'Copy full SHA to clipboard'}"
