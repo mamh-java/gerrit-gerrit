@@ -32,6 +32,7 @@ import com.google.gerrit.server.notedb.ChangeNotes;
 import com.google.gerrit.server.notedb.ChangeUpdate;
 import com.google.gerrit.server.update.BatchUpdateOp;
 import com.google.gerrit.server.update.ChangeContext;
+import com.google.gerrit.server.update.PostUpdateContext;
 import com.google.gerrit.server.update.Context;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -66,8 +67,7 @@ public class WorkAddMessageOp implements BatchUpdateOp {
 
   private Change change;
   private PatchSet ps;
-  private ChangeNotes notes;
-  private ChangeMessage cmsg;
+  private String mailMessage;
   private List<HumanComment> comments = new ArrayList<>();
 
   @Inject
@@ -92,7 +92,6 @@ public class WorkAddMessageOp implements BatchUpdateOp {
   @Override
   public boolean updateChange(ChangeContext ctx) {
     change = ctx.getChange();
-    notes = ctx.getNotes();
     ps = psUtil.get(ctx.getNotes(), change.currentPatchSetId());
 
     comments = commentsUtil.draftByChangeAuthor(ctx.getNotes(), ctx.getUser().getAccountId());
@@ -101,12 +100,12 @@ public class WorkAddMessageOp implements BatchUpdateOp {
     ChangeUpdate update = ctx.getUpdate(change.currentPatchSetId());
     publishCommentUtil.publish(ctx, update, comments, null);
 
-    addMessage(ctx, update);
+    addMessage(ctx);
     return true;
   }
 
-  private void addMessage(ChangeContext ctx, ChangeUpdate update) {
-    Change c = ctx.getChange();
+  private void addMessage(ChangeContext ctx) {
+    // Change c = ctx.getChange();
     StringBuilder buf = new StringBuilder(this.message);
 
     String m = Strings.nullToEmpty(in == null ? null : in.message).trim();
@@ -115,24 +114,23 @@ public class WorkAddMessageOp implements BatchUpdateOp {
       buf.append(m);
     }
 
-    cmsg = 
-      ChangeMessagesUtil.newMessage(
+    mailMessage = 
+      cmUtil.setChangeMessage(
         ctx, buf.toString(), ChangeMessagesUtil.TAG_SET_STARTGB);
 
-    cmUtil.addChangeMessage(update, cmsg);
   }
 
   @Override
-  public void postUpdate(Context ctx) {
-    if (cmsg == null || change == null || ps == null) {
+  public void postUpdate(PostUpdateContext ctx) {
+    if (mailMessage == null || change == null || ps == null) {
       return;
     }
 
     commentAdded.fire(
-        change,
+        ctx.getChangeData(change),
         ps,
         ctx.getAccount(),
-        cmsg.getMessage(),
+        mailMessage,
         ImmutableMap.of(),
         ImmutableMap.of(),
         ctx.getWhen());
