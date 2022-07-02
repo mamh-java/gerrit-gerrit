@@ -181,6 +181,7 @@ export const htmlTemplate = html`
       <div class="errorMoreInfo">[[_lastError.moreInfo]]</div>
     </div>
   </main>
+  <gr-endpoint-decorator name="footer-up"></gr-endpoint-decorator>
   <footer r="contentinfo" aria-hidden="[[_footerHeaderAriaHidden]]">
     <div>
       Powered by
