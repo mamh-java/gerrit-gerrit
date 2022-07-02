@@ -72,7 +72,11 @@ export const htmlTemplate = html`
       --gr-change-star-size: var(--line-height-normal);
     }
     a.changeNumber {
-      margin-left: var(--spacing-xs);
+      font-family: var(--header-font-family);
+      font-size: var(--font-size-h3);
+      font-weight: var(--font-weight-h3);
+      line-height: var(--line-height-h3);
+      margin-left: var(--spacing-l);
     }
     gr-reply-dialog {
       width: 60em;
@@ -328,13 +332,6 @@ export const htmlTemplate = html`
               ></gr-change-status>
             </template>
           </div>
-          <gr-change-star
-            id="changeStar"
-            change="{{_change}}"
-            on-toggle-star="_handleToggleStar"
-            hidden$="[[!_loggedIn]]"
-          ></gr-change-star>
-
           <a
             class="changeNumber"
             aria-label$="[[_computeChangePermalinkAriaLabel(_change._number)]]"
