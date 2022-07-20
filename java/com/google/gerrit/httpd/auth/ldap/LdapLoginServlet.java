@@ -125,21 +125,21 @@ class LdapLoginServlet extends HttpServlet {
       sendForm(req, res, e.getMessage());
       return;
     } catch (AuthenticationUnavailableException e) {
-      sendForm(req, res, "Authentication unavailable at this time.");
+      sendForm(req, res, "Authentication unavailable at this time." +  e.getMessage());
       return;
     } catch (AuthenticationFailedException e) {
       // This exception is thrown if the user provided wrong credentials, we don't need to log a
       // stacktrace for it.
       logger.atWarning().log("'%s' failed to sign in: %s", username, e.getMessage());
-      sendForm(req, res, "Invalid username or password.");
+      sendForm(req, res, "Invalid username or password." +  e.getMessage());
       return;
     } catch (AccountException e) {
       logger.atWarning().withCause(e).log("'%s' failed to sign in", username);
-      sendForm(req, res, "Authentication failed.");
+      sendForm(req, res, "Authentication failed." +  e.getMessage());
       return;
     } catch (RuntimeException e) {
       logger.atSevere().withCause(e).log("LDAP authentication failed");
-      sendForm(req, res, "Authentication unavailable at this time.");
+      sendForm(req, res, "Authentication unavailable at this time." +  e.getMessage());
       return;
     }
 

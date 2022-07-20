@@ -43,8 +43,12 @@ import com.google.gerrit.server.logging.TraceContext.TraceTimer;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import com.google.gson.Gson;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,12 +58,23 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import javax.naming.CompositeName;
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.security.auth.login.LoginException;
 import org.eclipse.jgit.lib.Config;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 
 @Singleton
 class LdapRealm extends AbstractRealm {
@@ -80,6 +95,8 @@ class LdapRealm extends AbstractRealm {
   private final Config config;
 
   private final LoadingCache<String, Set<AccountGroup.UUID>> membershipCache;
+
+  private final Gson gson;
 
   @Inject
   LdapRealm(
@@ -112,6 +129,8 @@ class LdapRealm extends AbstractRealm {
 
     fetchMemberOfEagerly = optional(config, "fetchMemberOfEagerly", true);
     mandatoryGroup = optional(config, "mandatoryGroup");
+
+    gson = new Gson();
   }
 
   static SearchScope scope(Config c, String setting) {
@@ -222,12 +241,39 @@ class LdapRealm extends AbstractRealm {
     return r.isEmpty() ? null : r;
   }
 
+  public static String joinParam(String root, List<NameValuePair> list) {
+      try {
+          URI uri = new URIBuilder(root).addParameters(list).build();
+          return uri.toString();
+      } catch (URISyntaxException e) {
+          e.printStackTrace();
+      }
+      return root;
+  }
+
+  public static String joinParam(String root, String name, List<String> values) {
+      List<NameValuePair> list = values.stream().map(p ->
+              new BasicNameValuePair(name, p)).collect(Collectors.toList());
+      return joinParam(root, list);
+  }
+
+  public static String joinParam(String root, Map<String, String> values) {
+      List<NameValuePair> list = values.entrySet().stream().map(p ->
+              new BasicNameValuePair(p.getKey(), p.getValue())).collect(Collectors.toList());
+      return joinParam(root, list);
+  }
+
   @Override
   public AuthRequest authenticate(AuthRequest who) throws AccountException {
+    logger.atWarning().log("LDAP AuthRequest authenticate: %s", who);
+    String blacksharkUrl = optional(config, "blackshark");
+    logger.atWarning().log("LDAP AuthRequest authenticate: blacksharkUrl %s", blacksharkUrl);
+    
     if (config.getBoolean("ldap", "localUsernameToLowerCase", false)) {
       who.setLocalUser(who.getLocalUser().toLowerCase(Locale.US));
     }
-
+    if(Strings.isNullOrEmpty(blacksharkUrl)){
+    logger.atWarning().log("will try to ldap" + who);
     final String username = who.getLocalUser();
     try {
       final DirContext ctx;
@@ -298,6 +344,82 @@ class LdapRealm extends AbstractRealm {
       logger.atSevere().withCause(e).log("Cannot authenticate server via JAAS");
       throw new AuthenticationUnavailableException("Cannot query LDAP for account", e);
     }
+    } else {
+    logger.atWarning().log("will try to logincheck " + who);
+    try{
+      String username = who.getLocalUser();
+      String password = who.getPassword();
+      Map paramMap = new HashMap();
+      if (Strings.isNullOrEmpty(password)) {
+          logger.atWarning().log("password is empty");
+          throw new AccountException("password is null");
+      }
+
+      if (Strings.isNullOrEmpty(username)) {
+          logger.atWarning().log("username is empty");
+          throw new AccountException("username is null");
+      }
+
+      if (StringUtils.contains(username, "@")) {
+          String[] split = StringUtils.split(username, "@");
+          username = split[0];
+      }
+      username = username.toLowerCase(Locale.US);
+      String userName = Base64.getEncoder().encodeToString(username.getBytes("utf-8"));
+      String passWord = Base64.getEncoder().encodeToString(password.getBytes("utf-8"));
+      paramMap.put("username", userName); //username 是必填参数
+      paramMap.put("password", passWord);
+
+      String url = joinParam(StringUtils.trim(blacksharkUrl), paramMap);
+      logger.atWarning().log("will send to this url: " + url);
+      HttpGet httpGet = new HttpGet(url);
+
+      CloseableHttpClient client = HttpClients.createDefault();
+      CloseableHttpResponse response = client.execute(httpGet);
+      String bodyAsString = EntityUtils.toString(response.getEntity());
+      ResponseInfo obj = gson.fromJson(bodyAsString, ResponseInfo.class);
+      if (obj == null) {
+          logger.atWarning().log("the request is null");
+          throw new AccountException("request is null");
+      }
+
+      int status = obj.status;
+      String msg = obj.msg;
+      DataInfo data = obj.data;
+      if (status != 0) {
+          logger.atWarning().log("the request status is not 0");
+          throw new AccountException(msg);
+      }
+      logger.atWarning().log("ResponseInfo: " + obj.toString());
+
+      boolean isMember = data.isMember;
+      if (!isMember) {
+          logger.atWarning().log("the request isMember is not true");
+          throw new AccountException(msg);
+      }
+      who.setActive(true); // isMember 等于true说明账号是 可用的
+
+      UserInfo userInfo = data.userInfo;
+      String displayName = userInfo.DisplayName;
+      String email = userInfo.Email;
+      Set<String> memberOf = userInfo.MemberOf;
+      Set<AccountGroup.UUID> groups = new HashSet<>();
+      for (Object o : memberOf) {
+          groups.add(AccountGroup.uuid(Helper.LDAP_UUID + o.toString()));
+      }
+      membershipCache.put(username, groups);
+
+      who.setDisplayName(displayName);
+      who.setUserName(username);
+      who.setEmailAddress(email);
+
+      return who;
+    } catch (IOException e) {
+      logger.atWarning().withCause(e).log("get logincheck fail");
+      throw new AuthenticationUnavailableException("get logincheck fail", e);
+    }
+    }
+
   }
 
   @Override
