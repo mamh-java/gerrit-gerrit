@@ -36,5 +36,9 @@ java_library(
         "//lib/flogger:api",
         "//lib/guice",
         "//proto:cache_java_proto",
+        "//lib/httpcomponents:httpclient",
+        "//lib/httpcomponents:httpcore",
+        "//lib:gson",
+        "//lib/commons:lang",
     ],
 )
