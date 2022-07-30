@@ -341,7 +341,6 @@ export const htmlTemplate = html`
           </a>
         </span>
       </section>
-
     </template>
     <section
       class$="[[_computeDisplayState(_showAllSections, change, _SECTION.PARENT)]]"
@@ -412,13 +411,6 @@ export const htmlTemplate = html`
             removable="[[!_topicReadOnly]]"
             on-remove="_handleTopicRemoved"
           ></gr-linked-chip>
-          <gr-copy-clipboard
-            has-tooltip=""
-            button-title="Copy topic clipboard"
-            hide-input=""
-            text="[[change.topic]]"
-          >
-          </gr-copy-clipboard>
         </template>
         <template is="dom-if" if="[[_showAddTopic(change.*, _settingTopic)]]">
           <gr-editable-label
