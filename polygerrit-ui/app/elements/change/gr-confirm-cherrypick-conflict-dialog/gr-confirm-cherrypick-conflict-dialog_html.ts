@@ -33,6 +33,7 @@ export const htmlTemplate = html`
   </style>
   <gr-dialog
     confirm-label="Continue"
+    disabled="true"
     on-confirm="_handleConfirmTap"
     on-cancel="_handleCancelTap"
   >
