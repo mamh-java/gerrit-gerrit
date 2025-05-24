@@ -1,63 +1,63 @@
 [submodule "modules/jgit"]
 	path = modules/jgit
-	url = ../jgit
+	url = https://gitee.com/mamh-java/jgit
 
 [submodule "plugins/codemirror-editor"]
 	path = plugins/codemirror-editor
-	url = ../plugins/codemirror-editor
+	url = https://gitee.com/mamh-java/plugins_codemirror-editor
 	branch = .
 
 [submodule "plugins/commit-message-length-validator"]
 	path = plugins/commit-message-length-validator
-	url = ../plugins/commit-message-length-validator
+	url = https://gitee.com/mamh-java/plugins_commit-message-length-validator
 	branch = .
 
 [submodule "plugins/delete-project"]
 	path = plugins/delete-project
-	url = ../plugins/delete-project
+	url = https://gitee.com/mamh-java/plugins_delete-project
 	branch = .
 
 [submodule "plugins/download-commands"]
 	path = plugins/download-commands
-	url = ../plugins/download-commands
+	url = https://gitee.com/mamh-java/plugins_download-commands
 	branch = master
 
 [submodule "plugins/gitiles"]
 	path = plugins/gitiles
-	url = ../plugins/gitiles
+	url = https://gitee.com/mamh-java/plugins_gitiles
 	branch = .
 
 [submodule "plugins/hooks"]
 	path = plugins/hooks
-	url = ../plugins/hooks
+	url = https://gitee.com/mamh-java/plugins_hooks
 	branch = .
 
 [submodule "plugins/plugin-manager"]
 	path = plugins/plugin-manager
-	url = ../plugins/plugin-manager
+	url = https://gitee.com/mamh-java/plugins_plugin-manager
 	branch = .
 
 [submodule "plugins/replication"]
 	path = plugins/replication
-	url = ../plugins/replication
+	url = https://gitee.com/mamh-java/plugins_replication
 	branch = .
 
 [submodule "plugins/reviewnotes"]
 	path = plugins/reviewnotes
-	url = ../plugins/reviewnotes
+	url = https://gitee.com/mamh-java/plugins_reviewnotes
 	branch = .
 
 [submodule "plugins/singleusergroup"]
 	path = plugins/singleusergroup
-	url = ../plugins/singleusergroup
+	url = https://gitee.com/mamh-java/plugins_singleusergroup
 	branch = .
 
 [submodule "plugins/webhooks"]
 	path = plugins/webhooks
-	url = ../plugins/webhooks
+	url = https://gitee.com/mamh-java/plugins_webhooks
 	branch = .
 
 [submodule "polymer-bridges"]
 	path = polymer-bridges
-	url = ../polymer-bridges
+	url = https://gitee.com/mamh-java/polymer-bridges
 	branch = .
