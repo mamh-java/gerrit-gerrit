@@ -51,7 +51,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.apache.commons.lang.StringUtils;
 
 @Singleton
 class BecomeAnyAccountLoginServlet extends HttpServlet {
@@ -154,7 +153,7 @@ class BecomeAnyAccountLoginServlet extends HttpServlet {
       throw new FileNotFoundException("No " + pageName + " in webapp");
     }
 
-    Element userlistElement = HtmlDomUtil.find(doc, "userlist");
+    // Element userlistElement = HtmlDomUtil.find(doc, "userlist");
     for (Account.Id accountId : accounts.firstNIds(100)) {
       Optional<AccountState> accountState = accountCache.get(accountId);
       if (!accountState.isPresent()) {
@@ -171,27 +170,20 @@ class BecomeAnyAccountLoginServlet extends HttpServlet {
       } else {
         displayName = accountId.toString();
       }
-      if( StringUtils.containsIgnoreCase(displayName, "jira")||
-        StringUtils.containsIgnoreCase(displayName, "buildfarm")||
-        StringUtils.containsIgnoreCase(displayName, "bright.ma")||
-        StringUtils.containsIgnoreCase(displayName, "annie.wu")||
-        StringUtils.containsIgnoreCase(displayName, "hans.han")||
-        StringUtils.containsIgnoreCase(displayName, "jenkins")
-      ){ // 跳过展示 管理员账号的账号
-        continue;
-      }
+      getServletContext().log("Will show displayName " + displayName +
+       " login url: " + "?account_id=" + account.id().toString());
 
       // a 标签
-      Element linkElement = doc.createElement("a");
-      linkElement.setAttribute("href", "?account_id=" + account.id().toString());
-      linkElement.setTextContent(displayName + ", " +
-                account.preferredEmail() + ", " +
-                account.fullName()
-      );
-      userlistElement.appendChild(linkElement);
+      // Element linkElement = doc.createElement("a");
+      // linkElement.setAttribute("href", "?account_id=" + account.id().toString());
+      // linkElement.setTextContent(displayName + ", " +
+      //           account.preferredEmail() + ", " +
+      //           account.fullName()
+      // );
+      // userlistElement.appendChild(linkElement);
 
 
-      userlistElement.appendChild(doc.createElement("br"));
+      // userlistElement.appendChild(doc.createElement("br"));
     }
 
     return HtmlDomUtil.toUTF8(doc);
